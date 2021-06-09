@@ -1,7 +1,7 @@
 <template>
   <div class="msg">
     {{ message }}
-    <span class="sp">嘿嘿嘿123</span>
+    <span class="sp">{{sum}}456</span>
     <img src="./image/images.jpeg" alt="" />
     <span class="sp">哈哈哈哈哈哈</span>
     <span class="sp">哈哈哈哈哈哈</span>
@@ -14,10 +14,13 @@
 </template>
 
 <script>
+import largeNumber from 'large_number_jscopyer_demo';
+let sum = largeNumber('999','1');
 export default {
   data() {
     return {
       message: 'hello webpack',
+      sum,
     };
   },
   methods: {
