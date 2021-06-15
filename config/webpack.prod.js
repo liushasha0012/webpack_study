@@ -8,6 +8,7 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const glob = require('glob');
 const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
 const webpack = require('webpack');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 setMPA = () => {
   let entries = {};
   let htmlPlugins = [];
@@ -47,13 +48,13 @@ module.exports = {
     path: path.resolve(__dirname, '../dist'),
     filename: '[name]_[chunkhash:8].js',
   },
-  mode: 'none',
+  mode: 'production',
   module: {
     rules: [
       {
         test: /\.js$/,
         use: ['babel-loader', 'eslint-loader'],
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.vue$/,
@@ -133,7 +134,8 @@ module.exports = {
         },
       ],
     }),
-    new webpack.optimize.ModuleConcatenationPlugin(),
+    // new webpack.optimize.ModuleConcatenationPlugin(), // 手动开启 scopeHoisting
+    new FriendlyErrorsWebpackPlugin(),
   ].concat(htmlPlugins),
   resolve: {
     alias: {
@@ -153,4 +155,5 @@ module.exports = {
       },
     },
   },
+  stats: 'errors-only',
 }; 
