@@ -3,6 +3,7 @@
     {{ message }}
     <span class="sp">{{sum}}456</span>
     <img src="./image/images.jpeg" alt="" />
+    <img src="./image/2.jpeg" alt="">
     <span class="sp">哈哈哈哈哈哈</span>
     <span class="sp">哈哈哈哈哈哈</span>
     <span class="sp">哈哈哈哈哈哈</span>

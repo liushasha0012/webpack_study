@@ -9,6 +9,16 @@ const glob = require('glob');
 const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
 const webpack = require('webpack');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
+const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const PurgecssWebpackPlugin = require('purgecss-webpack-plugin');
+// const {BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
+const smp = new SpeedMeasureWebpackPlugin(); // 实例化构建速度测量插件
+const PATH = {
+  src: path.resolve(__dirname, 'src')
+};
+
 setMPA = () => {
   let entries = {};
   let htmlPlugins = [];
@@ -53,7 +63,17 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: ['babel-loader', 'eslint-loader'],
+        include: path.resolve(__dirname, 'src'),
+        use: [
+          {
+            loader: 'thread-loader',
+            options: {
+              workers: 3,
+            },
+          },
+          'babel-loader?cacheDirectory=true',
+          'eslint-loader',
+        ],
         exclude: /node_modules/,
       },
       {
@@ -62,12 +82,20 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              esModule: true,
+            }
+          },
+          'css-loader',
+        ],
       },
       {
         test: /\.less$/,
         use: [
-          'style-loader',
+          MiniCssExtractPlugin.loader,
           'css-loader',
           'less-loader',
           {
@@ -111,6 +139,29 @@ module.exports = {
               name: '[name]_[hash:8].[ext]',
             },
           },
+          {
+            loader: 'image-webpack-loader',
+            options: {
+              mozjpeg: {
+                progressive: true,
+              },
+              // optipng.enabled: false will disable optipng
+              optipng: {
+                enabled: false,
+              },
+              pngquant: {
+                quality: [0.65, 0.9],
+                speed: 4,
+              },
+              gifsicle: {
+                interlaced: false,
+              },
+              // the webp option will enable WEBP
+              webp: {
+                quality: 75,
+              },
+            },
+          },
         ],
       },
     ],
@@ -124,6 +175,9 @@ module.exports = {
       asseteNameRegExp: /\.css$/g,
       cssProcessor: require('cssnano'),
     }),
+    new PurgecssWebpackPlugin({
+      paths: glob.sync(`${PATH.src}/*/*`, { nodir: true }), // 这个path 是绝对路径
+    }),
     new CleanWebpackPlugin(),
     new HtmlWebpackExternalsPlugin({
       externals: [
@@ -136,12 +190,19 @@ module.exports = {
     }),
     // new webpack.optimize.ModuleConcatenationPlugin(), // 手动开启 scopeHoisting
     new FriendlyErrorsWebpackPlugin(),
+    new webpack.DllReferencePlugin({
+      manifest: require('../build/library/library.json'),
+    }),
+    new HardSourceWebpackPlugin(),
+    // new BundleAnalyzerPlugin(),
   ].concat(htmlPlugins),
   resolve: {
     alias: {
       vue$: 'vue/dist/vue.esm.js',
     },
     extensions: ['.vue', '.js', '.css', '.less'],
+    // modules: [path.resolve(__dirname, 'node_modules')],
+    mainFields: ['main'],
   },
   optimization: {
     splitChunks: {
@@ -154,6 +215,12 @@ module.exports = {
         },
       },
     },
+    minimizer: [
+      new TerserWebpackPlugin({
+        parallel: false,
+        cache: true,
+      }),
+    ],
   },
-  stats: 'errors-only',
+  // stats: 'errors-only',
 }; 
