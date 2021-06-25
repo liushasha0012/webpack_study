@@ -9,7 +9,8 @@
     "watch": "webpack --watch",
     "dev": "webpack-dev-server --config ./config/webpack.dev.js --open ",
     "dll": "webpack --config ./config/webpack.dll.js",
-    "loader": "webpack --config ./config/webpack.loader.js"
+    "loader": "webpack --config ./config/webpack.loader.js",
+    "plugin": "webpack --config ./config/webpack.plugin.js"
   },
   "repository": {
     "type": "git",
